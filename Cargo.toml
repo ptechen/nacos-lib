@@ -1,0 +1,2 @@
+[workspace]
+members = ["nacos-lib", "to_url", "to_url_derive"]
