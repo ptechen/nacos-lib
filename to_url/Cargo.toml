@@ -2,12 +2,14 @@
 name = "to_url"
 version = "0.1.0"
 edition = "2021"
-
+repository = "https://github.com/ptechen/nacos-lib.git"
+license = "MIT OR Apache-2.0"
+description = "Rust Nacos"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde_json = "1.0.93"
-to_url_derive = { path = "../to_url_derive" }
+to_url_derive = "0.1.0"
 
 [features]
 default = ["to_url_derive"]
