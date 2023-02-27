@@ -58,6 +58,11 @@ impl Client {
     pub async fn build(&self) {
         let mut client = CLIENT.write().await;
         *client = self.to_owned();
+    }
+
+    pub async fn build_listen(&self) {
+        let mut client = CLIENT.write().await;
+        *client = self.to_owned();
         let _ = SERVICE_ADDRESSES.read().await;
     }
 

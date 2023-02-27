@@ -2,7 +2,7 @@ use tokio::time::{sleep, Duration};
 use criterion::{criterion_group, criterion_main, Criterion};
 use chrono::Utc;
 use nacos_lib::client::{Client, CLIENT};
-use nacos_lib::service_address::{get_address, SERVICE_ADDRESSES};
+use nacos_lib::service_address::get_address;
 use nacos_lib::result::Result;
 
 fn get_address_benchmark(c: &mut Criterion) {
@@ -19,7 +19,7 @@ async fn tt() -> Result<()> {
         .set_ip_port("127.0.0.1", "8080")
         .set_service_name("test")
         .set_space_name("test")
-        .build().await;
+        .build_listen().await;
     // println!("{:?}", CLIENT.read().await);
     CLIENT.read().await.get_register().register().await.unwrap();
     // SERVICE_ADDRESSES.read().await;
