@@ -7,3 +7,4 @@ pub mod get_instance;
 pub mod service_list;
 pub mod parse_url;
 pub mod instance_list;
+pub mod service_address;

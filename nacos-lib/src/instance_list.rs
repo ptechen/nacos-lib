@@ -1,5 +1,7 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use to_url::ToUrl;
+use serde_json::Value;
 use crate::client::REQ_CLIENT;
 use crate::parse_url::ParseUrl;
 use crate::result::Result;
@@ -21,40 +23,39 @@ pub struct GetInstanceList {
     pub healthyOnly: Option<bool>
 }
 
+#[async_trait]
 impl ParseUrl for GetInstanceList {}
 
 #[allow(non_snake_case)]
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Instance {
-    pub name: String,
-    pub groupName: String,
-    pub clusters: String,
-    pub cacheMillis: i64,
     pub hosts: Vec<Host>,
+    pub dom: String,
+    pub name: String,
+    pub cacheMillis: i64,
     pub lastRefTime: i64,
     pub checksum: String,
-    pub allIPs: bool,
-    pub reachProtectionThreshold: bool,
-    pub valid: bool,
+    pub useSpecifiedURL: bool,
+    pub clusters: String,
+    pub env: String,
+    pub metadata: Metadata,
 }
 
 #[allow(non_snake_case)]
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct Host {
-    pub instanceId: String,
     pub ip: String,
     pub port: i64,
-    pub weight: i64,
+    pub valid: bool,
     pub healthy: bool,
+    pub marked: bool,
+    pub instanceId: String,
+    pub metadata: Metadata,
     pub enabled: bool,
-    pub ephemeral: bool,
+    pub weight: f64,
     pub clusterName: String,
     pub serviceName: String,
-    pub metadata: Metadata,
-    pub instanceHeartBeatInterval: i64,
-    pub instanceIdGenerator: String,
-    pub instanceHeartBeatTimeOut: i64,
-    pub ipDeleteTimeout: i64,
+    pub ephemeral: bool,
 }
 
 #[allow(non_snake_case)]
@@ -64,8 +65,8 @@ pub struct Metadata {
 
 impl GetInstanceList {
     pub async fn instance_list(&self) ->Result<Instance> {
-        let url = self.parse_url(INSTANCE_LIST);
-        let data: Instance = REQ_CLIENT.get(url).send().await?.json().await?;
+        let url = self.parse_url(INSTANCE_LIST).await;
+        let data: Instance  = REQ_CLIENT.get(url).send().await?.json().await?;
         Ok(data)
     }
 }

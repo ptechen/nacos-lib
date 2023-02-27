@@ -2,9 +2,10 @@ use std::sync::Arc;
 use std::time::Duration;
 use once_cell::sync::Lazy;
 use serde::Deserialize;
-use parking_lot::RwLock;
+use tokio::sync::RwLock;
 use crate::beat::{Beat, BeatInfo};
 use crate::get_instance::GetInstance;
+use crate::instance_list::GetInstanceList;
 use crate::register::Register;
 use crate::service_list::GetServiceList;
 use crate::unregister::UnRegister;
@@ -53,25 +54,25 @@ pub struct Client {
 /// Client::init_client("http://127.0.0.1:8848", 5)
 
 impl Client {
-    pub fn init(&self) {
-        let mut client = CLIENT.write();
+    pub async fn init(&self) {
+        let mut client = CLIENT.write().await;
         *client = self.to_owned();
     }
 
-    pub fn init_client(url: &str, client_beat_interval: u64){
-        let mut client = CLIENT.write();
-        client.url = url.trim().to_owned();
+    pub async fn init_client(url: &str, client_beat_interval: u64){
+        let mut client = CLIENT.write().await;
+        client.url = url.trim().to_string();
         client.client_beat_interval = client_beat_interval;
     }
 
-    pub fn set_ip_port(ip: &str, port: &str) {
-        let mut client = CLIENT.write();
+    pub async fn set_ip_port(ip: &str, port: &str) {
+        let mut client = CLIENT.write().await;
         client.ip = Some(ip.trim().to_owned());
         client.port = Some(port.trim().to_owned());
     }
 
-    pub fn set_service_name(service_name: &str) {
-        let mut client = CLIENT.write();
+    pub async fn set_service_name(service_name: &str) {
+        let mut client = CLIENT.write().await;
         client.serviceName = service_name.to_owned();
     }
 
@@ -81,6 +82,16 @@ impl Client {
             pageSize: page_size,
             groupName: self.groupName.to_owned(),
             namespaceId: self.namespaceId.to_owned(),
+        }
+    }
+
+    pub fn get_instance_list(&self, service_name: &str, healthy_only: bool) -> GetInstanceList {
+        GetInstanceList{
+            serviceName: service_name.to_owned(),
+            groupName: self.groupName.to_owned(),
+            namespaceId: self.namespaceId.to_owned(),
+            clusters: self.clusterName.to_owned(),
+            healthyOnly: Some(healthy_only),
         }
     }
 

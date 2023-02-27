@@ -1,16 +1,14 @@
 use std::time::Duration;
 use serde_json::Value;
-use chrono::Utc;
-use reqwest::Url;
 use serde::{Deserialize, Serialize};
 use tokio::time::sleep;
-use crate::client::{CLIENT, REQ_CLIENT};
-use crate::result::Result;
-use std::str::FromStr;
+use async_trait::async_trait;
 use from_value_derive::From;
 use serde_json::Map;
 use to_url::ToUrl;
 use crate::parse_url::ParseUrl;
+use crate::client::{CLIENT, REQ_CLIENT};
+use crate::result::Result;
 
 const BEAT: &str = "/nacos/v1/ns/instance/beat";
 
@@ -34,11 +32,12 @@ pub struct Beat{
     pub beat: Option<BeatInfo>,
 }
 
+#[async_trait]
 impl ParseUrl for Beat {}
 
 impl Beat {
     pub async fn beat(&self) -> Result<String> {
-        let url = self.parse_url(BEAT);
+        let url = self.parse_url(BEAT).await;
         tokio::spawn(Self::send_beat(url));
         Ok("ok".to_string())
     }
@@ -46,7 +45,7 @@ impl Beat {
     async fn send_beat(url: String) -> Result<()>{
         let interval;
         {
-            interval = CLIENT.read().client_beat_interval;
+            interval = CLIENT.read().await.client_beat_interval;
         };
         loop {
             sleep(Duration::from_secs(interval)).await;

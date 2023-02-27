@@ -1,7 +1,8 @@
+use async_trait::async_trait;
 use serde::Deserialize;
 use serde_json::Value;
 use to_url::ToUrl;
-use crate::client::{Client, CLIENT, REQ_CLIENT};
+use crate::client::{REQ_CLIENT};
 use crate::parse_url::ParseUrl;
 use crate::result::Result;
 
@@ -27,11 +28,12 @@ pub struct UnRegister {
     pub ephemeral: Option<bool>,
 }
 
+#[async_trait]
 impl ParseUrl for UnRegister{}
 
 impl UnRegister {
     pub async fn unregister(&self) -> Result<String> {
-        let url = self.parse_url(UNREGISTER);
+        let url = self.parse_url(UNREGISTER).await;
         let ok = REQ_CLIENT.delete(url).send().await?.text().await?;
         Ok(ok)
     }

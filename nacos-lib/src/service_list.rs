@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use to_url::ToUrl;
 use crate::parse_url::ParseUrl;
@@ -9,7 +10,7 @@ const SERVICE_LIST: &str = "/nacos/v1/ns/service/list";
 
 /// 查询服务列表
 #[allow(non_snake_case)]
-#[derive(Debug, Default, Clone, Deserialize, ToUrl)]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, ToUrl)]
 pub struct GetServiceList {
     /// 当前页码
     pub pageNo: u64,
@@ -21,6 +22,7 @@ pub struct GetServiceList {
     pub namespaceId: Option<String>
 }
 
+#[async_trait]
 impl ParseUrl for GetServiceList {}
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
@@ -31,8 +33,8 @@ pub struct Services {
 
 impl GetServiceList {
     pub async fn service_list(&self) -> Result<Services> {
-        let url = self.parse_url(SERVICE_LIST);
-        let data:Services = REQ_CLIENT.get(url).send().await?.json().await?;
+        let url = self.parse_url(SERVICE_LIST).await;
+        let data:Services = REQ_CLIENT.get(&url).send().await?.json().await?;
         Ok(data)
     }
 }

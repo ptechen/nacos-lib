@@ -1,8 +1,8 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use to_url::ToUrl;
 use serde_json::Value;
-use crate::client::{Client, CLIENT, REQ_CLIENT};
-use crate::get_instance::GetInstance;
+use crate::client::{CLIENT, REQ_CLIENT};
 use crate::parse_url::ParseUrl;
 use crate::result::Result;
 
@@ -36,13 +36,14 @@ pub struct Register {
     pub ephemeral: Option<bool>,
 }
 
+#[async_trait]
 impl ParseUrl for Register{}
 
 impl Register {
     pub async fn register(&self) -> Result<String> {
-        let url = self.parse_url(REGISTER);
+        let url = self.parse_url(REGISTER).await;
         let ok = REQ_CLIENT.post(url).send().await?.text().await?;
-        let read = CLIENT.read();
+        let read = CLIENT.read().await;
         let ins = read.get_instance().get_instance().await?;
         let beat = read.get_beat(&ins.instanceId);
         beat.beat().await?;

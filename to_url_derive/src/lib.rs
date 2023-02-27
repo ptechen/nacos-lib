@@ -18,15 +18,19 @@ pub fn to_url_derive(input: TokenStream) -> TokenStream {
                         let val = Value::from(self.#field.to_owned());
                         if val.is_object() {
                             let val = serde_json::to_string(&val).unwrap();
-                            if val != "null" {
+                            if val != "null" && val != "" {
                                 let key = stringify!(#field);
                                 let val = url::form_urlencoded::byte_serialize(val.as_bytes()).collect::<String>();
                                 key_val = format!("{}={}", key, val);
                                 array.push(key_val);
                             }
+                        } else if val.is_number() {
+                            let key = stringify!(#field);
+                            key_val = format!("{}={}", key, val);
+                            array.push(key_val);
                         } else {
                             let val = serde_json::to_string(&val).unwrap();
-                            if val != "null" {
+                            if val != "null"  && val != "" {
                                 let key = stringify!(#field);
                                 key_val = format!("{}={}", key, val.get(1..val.len() - 1).unwrap());
                                 array.push(key_val);

@@ -1,7 +1,8 @@
+use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use to_url::ToUrl;
-use crate::client::{CLIENT, REQ_CLIENT};
+use crate::client::REQ_CLIENT;
 use crate::parse_url::ParseUrl;
 use crate::result::Result;
 
@@ -28,6 +29,7 @@ pub struct GetInstance{
     pub ephemeral: Option<bool>,
 }
 
+#[async_trait]
 impl ParseUrl for GetInstance {}
 
 #[allow(non_snake_case)]
@@ -48,7 +50,7 @@ pub struct Metadata {}
 
 impl GetInstance {
     pub async fn get_instance(&self) -> Result<Instance> {
-        let url = self.parse_url(GET_INSTANCE);
+        let url = self.parse_url(GET_INSTANCE).await;
         let data: Instance = REQ_CLIENT.get(url).send().await?.json().await?;
         Ok(data)
     }
