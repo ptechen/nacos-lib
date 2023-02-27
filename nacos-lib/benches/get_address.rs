@@ -15,12 +15,14 @@ fn get_address_benchmark(c: &mut Criterion) {
 }
 
 async fn tt() -> Result<()> {
-    Client::init_client("http://1.13.3.254:8848", 5).await;
-    Client::set_ip_port("127.0.0.1", "8080").await;
-    Client::set_service_name("test").await;
+    Client::default().init_client("http://1.13.3.254:8848", 5)
+        .set_ip_port("127.0.0.1", "8080")
+        .set_service_name("test")
+        .set_space_name("test")
+        .build().await;
     // println!("{:?}", CLIENT.read().await);
     CLIENT.read().await.get_register().register().await.unwrap();
-    SERVICE_ADDRESSES.read().await;
+    // SERVICE_ADDRESSES.read().await;
     sleep(Duration::from_secs(5)).await;
     // let start = Utc::now().timestamp_millis();
     Ok(())

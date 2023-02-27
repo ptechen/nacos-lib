@@ -7,6 +7,7 @@ use crate::beat::{Beat, BeatInfo};
 use crate::get_instance::GetInstance;
 use crate::instance_list::GetInstanceList;
 use crate::register::Register;
+use crate::service_address::SERVICE_ADDRESSES;
 use crate::service_list::GetServiceList;
 use crate::unregister::UnRegister;
 
@@ -54,26 +55,37 @@ pub struct Client {
 /// Client::init_client("http://127.0.0.1:8848", 5)
 
 impl Client {
-    pub async fn init(&self) {
+    pub async fn build(&self) {
         let mut client = CLIENT.write().await;
         *client = self.to_owned();
+        let _ = SERVICE_ADDRESSES.read().await;
     }
 
-    pub async fn init_client(url: &str, client_beat_interval: u64){
-        let mut client = CLIENT.write().await;
-        client.url = url.trim().to_string();
-        client.client_beat_interval = client_beat_interval;
+    pub fn init_client(mut self, url: &str, client_beat_interval: u64) -> Self{
+        self.url = url.trim().to_string();
+        self.client_beat_interval = client_beat_interval;
+        self
     }
 
-    pub async fn set_ip_port(ip: &str, port: &str) {
-        let mut client = CLIENT.write().await;
-        client.ip = Some(ip.trim().to_owned());
-        client.port = Some(port.trim().to_owned());
+    pub fn set_ip_port(mut self, ip: &str, port: &str) -> Self {
+        self.ip = Some(ip.trim().to_owned());
+        self.port = Some(port.trim().to_owned());
+        self
     }
 
-    pub async fn set_service_name(service_name: &str) {
-        let mut client = CLIENT.write().await;
-        client.serviceName = service_name.to_owned();
+    pub fn set_service_name(mut self, service_name: &str) -> Self {
+        self.serviceName = service_name.to_owned();
+        self
+    }
+
+    pub fn set_group_name(mut self, group_name: &str) -> Self {
+        self.groupName = Some(group_name.to_owned());
+        self
+    }
+
+    pub fn set_space_name(mut self, space_name: &str) -> Self {
+        self.namespaceId = Some(space_name.to_owned());
+        self
     }
 
     pub fn get_service_list(&self, page_no: u64, page_size: u64) -> GetServiceList {
