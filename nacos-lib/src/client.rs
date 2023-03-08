@@ -4,6 +4,7 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use tokio::sync::RwLock;
 use crate::beat::{Beat, BeatInfo};
+use crate::get_config::GetConfig;
 use crate::get_instance::GetInstance;
 use crate::instance_list::GetInstanceList;
 use crate::register::Register;
@@ -178,6 +179,15 @@ impl Client {
             serviceName: self.serviceName.to_owned(),
             groupName: self.groupName.to_owned(),
             ephemeral: self.ephemeral,
+        }
+    }
+
+    pub fn get_config(&self) -> GetConfig {
+        GetConfig{
+            namespaceId: self.namespaceId.to_owned(),
+            group: self.groupName.to_owned().unwrap_or_default(),
+            dataId: "".to_string(),
+            tag: self.clusterName.to_owned(),
         }
     }
 }
